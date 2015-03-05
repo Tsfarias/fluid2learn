@@ -7,6 +7,9 @@ import pt.c01interfaces.s01knowledge.s01base.inter.IEnquirer;
 import pt.c01interfaces.s01knowledge.s01base.inter.IObjetoConhecimento;
 import pt.c01interfaces.s01knowledge.s01base.inter.IResponder;
 
+/*Importa biblioteca que contem hashmap*/
+import java.util.*;
+
 public class Enquirer implements IEnquirer
 {
     IObjetoConhecimento obj;
@@ -19,32 +22,47 @@ public class Enquirer implements IEnquirer
 	@Override
 	public void connect(IResponder responder)
 	{
+        /*Implementação de um "dicionario" que armazena as perguntas já feitas*/
+        Map<String, String> jaPerguntada = new HashMap<String, String>();
         int animal = 0;
+        /*Booleanos para verificar se já encontrou o animal*/
         boolean animalEsperado = true, achou = false;
+        /*Strings que armazenam a pergunta lida do db, a resposta lida do db e
+         a resposta lida do usuario*/
+        String pergunta, respostaEsperada, resposta;
 
         IBaseConhecimento bc = new BaseConhecimento();
         /*Armazena em um array de string a lista de animais*/
         String listaAnimais[] = bc.listaNomes();
-        /*Faz do objeto o primeiro animal da string de animais*/
+        /*Armazena as linhas do db*/
+        IDeclaracao decl;
 
         while(!achou){
             /*Faz do objeto o animal da listaAnimal na posicao animal.
-              Ex. 0 = aranha., 1 = camarao...*/
+              Ex. 0 = aranha, 1 = camarao, (...)*/
             obj = bc.recuperaObjeto(listaAnimais[animal]);
-            IDeclaracao decl = obj.primeira();
+            decl = obj.primeira();
 
             while(decl != null && animalEsperado) {
-                /*Pega a pergunta e a resposta já dentro do bd*/
-                String pergunta = decl.getPropriedade();
-                String respostaEsperada = decl.getValor();
+                pergunta = decl.getPropriedade();
+                respostaEsperada = decl.getValor();
 
-                String resposta = responder.ask(pergunta);
+                if(jaPerguntada.get(pergunta) == null){
+                    /*Pega a pergunta e a resposta já dentro do bd*/
+                    resposta = responder.ask(pergunta);
+                    /*Insere a pergunta e a resposta no map*/
+                    jaPerguntada.put(pergunta,respostaEsperada);
+                }else{
+                    resposta = jaPerguntada.get(pergunta);
+                }
+
+
                 if (resposta.equalsIgnoreCase(respostaEsperada))
+                    /*Armazena no "dicionario" pergunta e resposta*/
                     decl = obj.proxima();
                 else
                     animalEsperado = false;
             }
-
             /*Caso saiu do loop acima sem ser o animal esperado, ele incrementa
             o contador do animal e faz novamente o loop*/
             if(!animalEsperado){
