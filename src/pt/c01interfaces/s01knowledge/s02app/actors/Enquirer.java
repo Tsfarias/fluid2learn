@@ -48,7 +48,7 @@ public class Enquirer implements IEnquirer
                 respostaEsperada = decl.getValor();
 
                 if(jaPerguntada.get(pergunta) == null){
-                    /*Pega a pergunta e a resposta já dentro do bd*/
+                    /*Pega a pergunta e a resposta já dentro do db*/
                     resposta = responder.ask(pergunta);
                     /*Insere a pergunta e a resposta no map*/
                     jaPerguntada.put(pergunta,respostaEsperada);
